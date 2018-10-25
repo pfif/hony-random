@@ -4,14 +4,14 @@ One _Human of New York_ at random
 Endpoints:
 --
 
-- '/' : Redirects to any story
-- '/long/' : Redirects to a long story (over 500 char)
+- `/` : Redirects to any story
+- `/long/` : Redirects to a long story (over 500 char)
 
 Run
 --
 
-Production mode : `docker-compose up`
-Developement mode : `docker-compose -f docker-compose.yml -f docker-compose.up.yml up --build`
+- Production mode : `docker-compose up`
+- Developement mode : `docker-compose -f docker-compose.yml -f docker-compose.up.yml up --build`
 
 Todo (maybe, one day ...)
 --
