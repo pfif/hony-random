@@ -1,0 +1,7 @@
+version: "3"
+services:
+  server:
+    build: .
+    env_file: tumblr_apikey.env
+    ports:
+      - 80:80
