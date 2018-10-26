@@ -20,7 +20,7 @@ def posts_count():
     blog = tumblr_session().get(
         "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/info")
     blog.raise_for_status()
-    
+
     result = blog.json()["response"]["blog"]["total_posts"]
     app.logger.debug("Retrieved post count: %s" % result)
     return result
@@ -28,7 +28,7 @@ def posts_count():
 
 def random_post(posts_count):
     post_nb = randint(0, posts_count)
-    
+
     post = tumblr_session().get(
         "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
         params={
@@ -70,6 +70,6 @@ def redirect_to_random_long_post():
 @app.route('/error/')
 def random_exception():
     raise Exception()
-    
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port='80', debug=bool(os.getenv("DEV_MODE", "")))
