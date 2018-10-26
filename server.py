@@ -51,7 +51,7 @@ def random_long_post(posts_count):
     post_length = len(post["caption"])
     app.logger.debug("Counted length for post : %s" % post_length)
 
-    if  post_length > 500:
+    if post_length > 500:
         return post
     else:
         return random_long_post(posts_count)
