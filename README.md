@@ -19,4 +19,4 @@ Todo (maybe, one day ...)
 
 - Proper web server in production (currently, Flask's developement server is used)
 - A homepage to introduce the different mode to the public
-- Maybe turn this into a Google App Engine app ?
+- Add static typing
