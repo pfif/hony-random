@@ -8,6 +8,12 @@ from requests import Session
 app = Flask(__name__)
 
 
+class Post(object):
+    def __init__(self, post_url, caption):
+        self.post_url = post_url
+        self.caption = caption
+
+
 def tumblr_session():
     s = Session()
     s.params = {
@@ -39,16 +45,16 @@ def random_post(posts_count):
 
     result = post.json()["response"]["posts"][0]
     app.logger.debug("Retrieved post : %s" % result["slug"])
-    return result
+    return Post(result["post_url"], result["caption"])
 
 
 def post_url(post):
-    return post["post_url"]
+    return post.post_url
 
 
 def random_long_post(posts_count):
     post = random_post(posts_count)
-    post_length = len(post["caption"])
+    post_length = len(post.caption)
     app.logger.debug("Counted length for post : %s" % post_length)
 
     if post_length > 500:

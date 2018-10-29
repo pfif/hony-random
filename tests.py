@@ -3,7 +3,7 @@ from unittest.mock import patch
 from requests_mock import Mocker
 
 from server import (
-    tumblr_session, posts_count, random_post, post_url, random_long_post)
+    tumblr_session, posts_count, random_post, post_url, random_long_post, Post)
 
 TUMBLR_URL_POST = "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/"
 TUMBLR_URL_BLOG = "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/info"
@@ -46,8 +46,8 @@ def test_random_post__returns_correct():
         m.get(TUMBLR_URL_POST, text=TUMBLR_RESPONSE_POST)
         post = random_post(1138)
 
-    assert post["post_url"] == "http://www.humansofnewyork.com/url"
-    assert post["caption"] == "<p>a_caption</p>"
+    assert post.post_url == "http://www.humansofnewyork.com/url"
+    assert post.caption == "<p>a_caption</p>"
 
 
 def test_random_post__selects_article():
@@ -60,11 +60,11 @@ def test_random_post__selects_article():
 
 
 def test_post_url():
-    assert post_url({"post_url": "url"}) == "url"
+    assert post_url(Post("url", "caption")) == "url"
 
 
 def test_random_long_post__first_post_is_long_enough():
-    post = {"caption": ["c" for i in range(501)]}
+    post = Post("url", ["c" for i in range(501)])
 
     with patch("server.random_post", side_effect=[post]):
         returned_post = random_long_post(1138)
@@ -74,9 +74,9 @@ def test_random_long_post__first_post_is_long_enough():
 
 def test_random_long_post__third_post_is_long_enough():
     posts = [
-        {"caption": ["c" for i in range(300)]},
-        {"caption": ["c" for i in range(100)]},
-        {"caption": ["c" for i in range(501)]}
+        Post("url", ["c" for i in range(300)]),
+        Post("url", ["c" for i in range(100)]),
+        Post("url", ["c" for i in range(501)])
     ]
 
     with patch("server.random_post", side_effect=posts):
