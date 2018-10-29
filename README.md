@@ -20,3 +20,10 @@ Todo (maybe, one day ...)
 - Proper web server in production (currently, Flask's developement server is used)
 - A homepage to introduce the different mode to the public
 - Add static typing
+
+Tech debt (maybe, one day ...)
+--
+
+- Tests of creation of posts should be abstracted
+- Break files up
+- Proper logging on production
