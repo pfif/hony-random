@@ -5,13 +5,15 @@ from flask import Flask, redirect
 from requests import Session
 
 
+
 app = Flask(__name__)
 
 
 class Post(object):
-    def __init__(self, post_url, caption):
+    def __init__(self, post_url, caption, timestamp):
         self.post_url = post_url
         self.caption = caption
+        self.timestamp = timestamp
 
 
 def tumblr_session():
@@ -44,8 +46,53 @@ def random_post(posts_count):
     post.raise_for_status()
 
     result = post.json()["response"]["posts"][0]
-    app.logger.debug("Retrieved post : %s" % result["slug"])
-    return Post(result["post_url"], result["caption"])
+    app.logger.debug("Retrieved post randomly : %s" % result["slug"])
+    return Post(result["post_url"], result["caption"], result["timestamp"])
+
+
+def post_by_id(identifier):
+    post = tumblr_session().get(
+        "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
+        params={
+            "id": identifier
+        }
+    )
+
+    if post.status_code == 200:
+        result = post.json()["response"]["posts"][0]
+        app.logger.debug("Retrieved post by id : %s" % result["slug"])
+        return Post(result["post_url"], result["caption"], result["timestamp"])
+    elif post.status_code == 404:
+        return None
+    else:
+        post.raise_for_status()
+
+
+def parse_post_number_in_series(post):
+    pass
+
+
+def nth_previous_posts(post, n):
+    posts = tumblr_session().get(
+        "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
+        params={
+            "before": (post.timestamp - 1),
+            "limit": n
+        }
+    )
+
+    result = posts.json()["response"]["posts"][-1]
+    app.logger.debug("Retrieved %s previous post : %s" % (n, result["slug"]))
+    return Post(result["post_url"], result["caption"], result["timestamp"])
+
+
+def first_post(identifier):
+    post = post_by_id(identifier)
+    if post:
+        position = parse_post_number_in_series(post)
+        return nth_previous_posts(post, position - 1)
+    else:
+        return None
 
 
 def post_url(post):
