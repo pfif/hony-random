@@ -1,13 +1,18 @@
 import os
 from random import randint
+from typing import Dict, Optional
 
 from flask import Flask, redirect
+from mypy_extensions import TypedDict
 from requests import Session
 
 app = Flask(__name__)
 
+Post = TypedDict(
+    'Post', {"post_url": str, "caption": str, "timestamp": int, "slug": str})
 
-def parse_post(raw_post):
+
+def parse_post(raw_post: Dict) -> Post:
     return {
         "post_url": raw_post["post_url"],
         "caption": raw_post["caption"],
@@ -16,7 +21,7 @@ def parse_post(raw_post):
     }
 
 
-def tumblr_session():
+def tumblr_session() -> Session:
     s = Session()
     s.params = {
         "api_key": os.getenv('TUMBLR_API_KEY', '')
@@ -24,7 +29,7 @@ def tumblr_session():
     return s
 
 
-def posts_count():
+def posts_count() -> int:
     blog = tumblr_session().get(
         "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/info")
     blog.raise_for_status()
@@ -34,47 +39,48 @@ def posts_count():
     return result
 
 
-def random_post(posts_count):
+def random_post(posts_count: int) -> Post:
     post_nb = randint(0, posts_count)
 
-    post = tumblr_session().get(
+    post_query = tumblr_session().get(
         "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
         params={
             "limit": 1,
             "offset": post_nb
         })
-    post.raise_for_status()
+    post_query.raise_for_status()
 
-    raw_post = post.json()["response"]["posts"][0]
+    raw_post = post_query.json()["response"]["posts"][0]
     post = parse_post(raw_post)
     app.logger.debug("Retrieved post randomly : %s" % post["slug"])
     return post
 
 
-def post_by_id(identifier):
-    post = tumblr_session().get(
+def post_by_id(identifier: str) -> Optional[Post]:
+    post_query = tumblr_session().get(
         "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
         params={
             "id": identifier
         }
     )
 
-    if post.status_code == 200:
-        raw_post = post.json()["response"]["posts"][0]
+    if post_query.status_code == 200:
+        raw_post = post_query.json()["response"]["posts"][0]
         post = parse_post(raw_post)
         app.logger.debug("Retrieved post by id : %s" % post["slug"])
         return post
-    elif post.status_code == 404:
+    elif post_query.status_code == 404:
         return None
     else:
-        post.raise_for_status()
+        post_query.raise_for_status()
+        return None
 
 
 def parse_post_number_in_series(post):
     pass
 
 
-def nth_previous_posts(post, n):
+def nth_previous_posts(post: Post, n: int):
     posts = tumblr_session().get(
         "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
         params={
@@ -89,7 +95,7 @@ def nth_previous_posts(post, n):
     return post
 
 
-def first_post(identifier):
+def first_post(identifier: str):
     post = post_by_id(identifier)
     if post:
         position = parse_post_number_in_series(post)
@@ -98,11 +104,11 @@ def first_post(identifier):
         return None
 
 
-def post_url(post):
+def post_url(post: Post):
     return post["post_url"]
 
 
-def random_long_post(posts_count):
+def random_long_post(posts_count: int):
     post = random_post(posts_count)
     post_length = len(post["caption"])
     app.logger.debug("Counted length for post : %s" % post_length)

@@ -11,19 +11,17 @@ Run
 --
 
 - Production mode : `docker-compose up`
-- Developement mode : `docker-compose -f docker-compose.yml -f docker-compose.up.yml up --build`
-- Run tests : `docker-compose -f docker-compose.test.yml build && docker-compose -f docker-compose.test.yml run tests`
+- Developement mode : `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build`
+- Run tests : `mypy --ignore-missing-imports tests.py server.py && pytest tests.py`
 
 Todo (maybe, one day ...)
 --
 
 - Proper web server in production (currently, Flask's developement server is used)
 - A homepage to introduce the different mode to the public
-- Add static typing
 
 Tech debt (maybe, one day ...)
 --
 
-- Tests of creation of posts should be abstracted
 - Break files up
 - Proper logging on production
