@@ -7,11 +7,13 @@ from requests import Session
 app = Flask(__name__)
 
 
-class Post(object):
-    def __init__(self, post_url, caption, timestamp):
-        self.post_url = post_url
-        self.caption = caption
-        self.timestamp = timestamp
+def parse_post(raw_post):
+    return {
+        "post_url": raw_post["post_url"],
+        "caption": raw_post["caption"],
+        "timestamp": raw_post["timestamp"],
+        "slug": raw_post["slug"]
+    }
 
 
 def tumblr_session():
@@ -43,9 +45,10 @@ def random_post(posts_count):
         })
     post.raise_for_status()
 
-    result = post.json()["response"]["posts"][0]
-    app.logger.debug("Retrieved post randomly : %s" % result["slug"])
-    return Post(result["post_url"], result["caption"], result["timestamp"])
+    raw_post = post.json()["response"]["posts"][0]
+    post = parse_post(raw_post)
+    app.logger.debug("Retrieved post randomly : %s" % post["slug"])
+    return post
 
 
 def post_by_id(identifier):
@@ -57,9 +60,10 @@ def post_by_id(identifier):
     )
 
     if post.status_code == 200:
-        result = post.json()["response"]["posts"][0]
-        app.logger.debug("Retrieved post by id : %s" % result["slug"])
-        return Post(result["post_url"], result["caption"], result["timestamp"])
+        raw_post = post.json()["response"]["posts"][0]
+        post = parse_post(raw_post)
+        app.logger.debug("Retrieved post by id : %s" % post["slug"])
+        return post
     elif post.status_code == 404:
         return None
     else:
@@ -74,14 +78,15 @@ def nth_previous_posts(post, n):
     posts = tumblr_session().get(
         "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
         params={
-            "before": (post.timestamp - 1),
+            "before": (post["timestamp"] - 1),
             "limit": n
         }
     )
 
-    result = posts.json()["response"]["posts"][-1]
-    app.logger.debug("Retrieved %s previous post : %s" % (n, result["slug"]))
-    return Post(result["post_url"], result["caption"], result["timestamp"])
+    raw_post = posts.json()["response"]["posts"][-1]
+    post = parse_post(raw_post)
+    app.logger.debug("Retrieved %s previous post : %s" % (n, post["slug"]))
+    return post
 
 
 def first_post(identifier):
@@ -94,12 +99,12 @@ def first_post(identifier):
 
 
 def post_url(post):
-    return post.post_url
+    return post["post_url"]
 
 
 def random_long_post(posts_count):
     post = random_post(posts_count)
-    post_length = len(post.caption)
+    post_length = len(post["caption"])
     app.logger.debug("Counted length for post : %s" % post_length)
 
     if post_length > 500:
