@@ -17,19 +17,6 @@ TUMBLR_RESPONSE_BLOG = """{
     }
 }"""
 
-def make_tumblr_response_post(number_post):
-    return {
-        "response": {
-            "posts": [
-                {
-                    "slug": "a-slug",
-                    "post_url": "http://www.humansofnewyork.com/url",
-                    "caption": "<p>a_caption</p>",
-                    "timestamp": 1540424820
-                }
-            ]
-        }
-    }
 
 TUMBLR_RESPONSE_POST = """{
     "response": {
@@ -71,7 +58,6 @@ TUMBLR_RESPONSE_THREE_POSTS = """{
 }"""
 
 
-
 def test_tumblr_session_has_correct_key():
     with patch('server.os.environ', {"TUMBLR_API_KEY": "key"}):
         session = tumblr_session()
@@ -80,10 +66,11 @@ def test_tumblr_session_has_correct_key():
 
 
 def test_post_count__returns_post():
-    with Mocker() as m :
+    with Mocker() as m:
         m.get(TUMBLR_URL_BLOG, text=TUMBLR_RESPONSE_BLOG)
         count = posts_count()
     assert count == 7260
+
 
 def test_random_post__returns_correct():
     with Mocker() as m:
@@ -98,7 +85,7 @@ def test_random_post__returns_correct():
 def test_random_post__selects_article():
     with Mocker() as m, patch("server.randint", side_effect=[10]):
         m.get(TUMBLR_URL_POST, text=TUMBLR_RESPONSE_POST)
-        post = random_post(1138)
+        random_post(1138)
 
     assert m.request_history[0].qs["limit"] == ['1']
     assert m.request_history[0].qs["offset"] == ['10']
@@ -145,13 +132,13 @@ def test_post_by_id__return_none_if_do_not_exists():
         m.get(TUMBLR_URL_POST, status_code=404)
         post = post_by_id(4815162342)
 
-    assert post == None
+    assert post is None
 
 
 def test_post_by_id__correct_argument_passed():
     with Mocker() as m:
         m.get(TUMBLR_URL_POST, text=TUMBLR_RESPONSE_POST)
-        post = post_by_id(4815162342)
+        post_by_id(4815162342)
 
     assert m.request_history[0].qs["id"] == ['4815162342']
 
@@ -159,9 +146,9 @@ def test_post_by_id__correct_argument_passed():
 def test_nth_previous_posts__correct_arguments_passed():
     with Mocker() as m:
         m.get(TUMBLR_URL_POST, text=TUMBLR_RESPONSE_THREE_POSTS)
-        post = nth_previous_posts(Post("url", "caption", 5555), 3)
+        nth_previous_posts(Post("url", "caption", 5555), 3)
 
-    assert m.request_history[0].qs["before"]  == ["5554"]
+    assert m.request_history[0].qs["before"] == ["5554"]
     assert m.request_history[0].qs["limit"] == ['3']
 
 
@@ -173,3 +160,7 @@ def test_nth_previous_posts__return_correct_post():
     assert post.post_url == "http://www.humansofnewyork.com/url"
     assert post.caption == "<p>a_caption_last</p>"
     assert post.timestamp == 1540424820
+
+
+def test_post_number_in_series():
+    pass
