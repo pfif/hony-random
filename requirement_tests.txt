@@ -1,0 +1,4 @@
+requests_mock==1.*
+pytest==3.*
+mypy==0.*
+mypy_extensions==0.*

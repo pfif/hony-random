@@ -4,7 +4,7 @@ from requests_mock import Mocker
 
 from server import (
     tumblr_session, posts_count, random_post, post_url, random_long_post,
-    parse_post, post_by_id, nth_previous_posts)
+    parse_post, post_by_id, nth_previous_posts, Post)
 
 TUMBLR_URL_POST = "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/"
 TUMBLR_URL_BLOG = "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/info"
@@ -74,10 +74,10 @@ TUMBLR_THREE_POSTS_LAST_POST = {
 }
 
 
-def make_test_post(post_url="http://www.humansofnewyork.com/url",
-                   slug="a-slug",
-                   caption="<p>a_caption</p>",
-                   timestamp=1540424820):
+def make_test_post(post_url: str = "http://www.humansofnewyork.com/url",
+                   slug: str = "a-slug",
+                   caption: str = "<p>a_caption</p>",
+                   timestamp: int = 1540424820) -> Post:
     return {
         "post_url": post_url,
         "caption": caption,
