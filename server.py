@@ -4,8 +4,6 @@ from random import randint
 from flask import Flask, redirect
 from requests import Session
 
-
-
 app = Flask(__name__)
 
 
@@ -123,6 +121,7 @@ def redirect_to_random_long_post():
 @app.route('/error/')
 def random_exception():
     raise Exception()
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port='80', debug=bool(os.getenv("DEV_MODE", "")))
