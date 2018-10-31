@@ -39,60 +39,67 @@ def posts_count() -> int:
     return result
 
 
-def random_post(posts_count: int) -> Post:
-    post_nb = randint(0, posts_count)
+def query_posts(params: Dict) -> Optional[dict]:
+    params["filter"] = "raw"
 
     post_query = tumblr_session().get(
         "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
-        params={
-            "limit": 1,
-            "offset": post_nb
-        })
-    post_query.raise_for_status()
-
-    raw_post = post_query.json()["response"]["posts"][0]
-    post = parse_post(raw_post)
-    app.logger.debug("Retrieved post randomly : %s" % post["slug"])
-    return post
-
-
-def post_by_id(identifier: str) -> Optional[Post]:
-    post_query = tumblr_session().get(
-        "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
-        params={
-            "id": identifier
-        }
-    )
-
+        params=params)
     if post_query.status_code == 200:
-        raw_post = post_query.json()["response"]["posts"][0]
-        post = parse_post(raw_post)
-        app.logger.debug("Retrieved post by id : %s" % post["slug"])
-        return post
+        return post_query.json()
     elif post_query.status_code == 404:
         return None
     else:
         post_query.raise_for_status()
+
+    return post_query.json()
+
+
+def random_post(posts_count: int) -> Optional[Post]:
+    post_nb = randint(0, posts_count)
+
+    posts = query_posts({
+        "limit": 1,
+        "offset": post_nb
+    })
+
+    if posts is not None:
+        raw_post = posts["response"]["posts"][0]
+        post = parse_post(raw_post)
+        app.logger.debug("Retrieved post randomly : %s" % post["slug"])
+        return post
+    else:
         return None
 
 
-def parse_post_number_in_series(post):
+def post_by_id(identifier: str) -> Optional[Post]:
+    posts = query_posts({"id": identifier})
+    if posts:
+        raw_post = posts["response"]["posts"][0]
+        post = parse_post(raw_post)
+        app.logger.debug("Retrieved post by id : %s" % post["slug"])
+        return post
+    else:
+        return None
+
+
+def parse_post_number_in_series(post: Post) -> int:
     pass
 
 
-def nth_previous_posts(post: Post, n: int) -> Post:
-    posts = tumblr_session().get(
-        "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
-        params={
-            "before": (post["timestamp"] - 1),
-            "limit": n
-        }
-    )
+def nth_previous_posts(post: Post, n: int) -> Optional[Post]:
+    posts = query_posts({
+        "before": (post["timestamp"] - 1),
+        "limit": n
+    })
 
-    raw_post = posts.json()["response"]["posts"][-1]
-    post = parse_post(raw_post)
-    app.logger.debug("Retrieved %s previous post : %s" % (n, post["slug"]))
-    return post
+    if posts is not None:
+        raw_post = posts["response"]["posts"][-1]
+        post = parse_post(raw_post)
+        app.logger.debug("Retrieved %s previous post : %s" % (n, post["slug"]))
+        return post
+    else:
+        return None
 
 
 def first_post(identifier: str) -> Optional[Post]:
@@ -108,25 +115,32 @@ def post_url(post: Post) -> str:
     return post["post_url"]
 
 
-def random_long_post(posts_count: int) -> Post:
+def random_long_post(posts_count: int) -> Optional[Post]:
     post = random_post(posts_count)
-    post_length = len(post["caption"])
-    app.logger.debug("Counted length for post : %s" % post_length)
+    if post:
+        post_length = len(post["caption"])
+        app.logger.debug("Counted length for post : %s" % post_length)
 
-    if post_length > 500:
-        return post
+        if post_length > 500:
+            return post
+        else:
+            return random_long_post(posts_count)
     else:
-        return random_long_post(posts_count)
+        return None
 
 
 @app.route('/')
 def redirect_to_random_post():
-    return redirect(post_url(random_post(posts_count())), code=303)
+    post = random_post(posts_count())
+    if post:
+        return redirect(post_url(post), code=303)
 
 
 @app.route('/long/')
 def redirect_to_random_long_post():
-    return redirect(post_url(random_long_post(posts_count())), code=303)
+    post = random_long_post(posts_count())
+    if post:
+        return redirect(post_url(post), code=303)
 
 
 @app.route('/error/')
