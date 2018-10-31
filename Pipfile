@@ -9,6 +9,7 @@ Flask = "==1.*"
 mypy_extensions = "==0.*"
 "flake8" = "*"
 mypy = "*"
+dominate = "*"
 
 [dev-packages]
 
