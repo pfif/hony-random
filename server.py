@@ -1,7 +1,11 @@
+#!/usr/bin/env python3
+
 import os
 from random import randint
 from typing import Dict, Optional
 
+from dominate import document
+from dominate.tags import (link, div, h1)
 from flask import Flask, redirect
 from mypy_extensions import TypedDict
 from requests import Session
@@ -117,6 +121,23 @@ def random_long_post(posts_count: int) -> Post:
         return post
     else:
         return random_long_post(posts_count)
+
+
+@app.route('/')
+def index():
+    doc = document(title='Random HONY')
+    with doc.head:
+        link(rel='stylesheet', href='/static/style.css')
+    with doc:
+        with div(id='container'):
+            h1('Random Human of New York')
+    return str(doc)
+
+
+@app.route('/static/style.css')
+def style():
+    with open('static/style.css', 'r') as fp:
+        return fp.read(), 200, {'Content-Type': 'text/css'}
 
 
 @app.route('/any/')
