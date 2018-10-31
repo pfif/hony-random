@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "==2.*"
+Flask = "==1.*"
+mypy_extensions = "==0.*"
+"flake8" = "*"
+mypy = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.7"
