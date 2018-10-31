@@ -20,8 +20,10 @@ Todo (maybe, one day ...)
 - Proper web server in production (currently, Flask's developement server is used)
 - A homepage to introduce the different mode to the public
 
+
 Tech debt (maybe, one day ...)
 --
 
 - Break files up
 - Proper logging on production
+- Dependency security fix
