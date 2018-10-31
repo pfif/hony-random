@@ -5,7 +5,7 @@ from random import randint
 from typing import Dict, Optional
 
 from dominate import document
-from dominate.tags import (link, div, h1)
+from dominate.tags import (link, div, h1, ul, li, a)
 from flask import Flask, redirect
 from mypy_extensions import TypedDict
 from requests import Session
@@ -14,6 +14,21 @@ app = Flask(__name__)
 
 Post = TypedDict(
     'Post', {"post_url": str, "caption": str, "timestamp": int, "slug": str})
+
+URLS = [
+    {
+        'route': '/',
+        'name': 'Home',
+    },
+    {
+        'route': '/any/',
+        'name': 'Any story',
+    },
+    {
+        'route': '/long/',
+        'name': 'Any long story (>500 words)',
+    },
+]
 
 
 def parse_post(raw_post: Dict) -> Post:
@@ -131,6 +146,9 @@ def index():
     with doc:
         with div(id='container'):
             h1('Random Human of New York')
+            with ul():
+                for elem in URLS:
+                    li(a(elem['name'], href=elem['route']))
     return str(doc)
 
 
