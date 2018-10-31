@@ -119,7 +119,7 @@ def random_long_post(posts_count: int) -> Post:
         return random_long_post(posts_count)
 
 
-@app.route('/')
+@app.route('/any/')
 def redirect_to_random_post():
     return redirect(post_url(random_post(posts_count())), code=303)
 
