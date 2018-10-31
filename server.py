@@ -80,7 +80,7 @@ def parse_post_number_in_series(post):
     pass
 
 
-def nth_previous_posts(post: Post, n: int):
+def nth_previous_posts(post: Post, n: int) -> Post:
     posts = tumblr_session().get(
         "https://api.tumblr.com/v2/blog/www.humansofnewyork.com/posts/photo/",
         params={
@@ -95,7 +95,7 @@ def nth_previous_posts(post: Post, n: int):
     return post
 
 
-def first_post(identifier: str):
+def first_post(identifier: str) -> Optional[Post]:
     post = post_by_id(identifier)
     if post:
         position = parse_post_number_in_series(post)
@@ -104,11 +104,11 @@ def first_post(identifier: str):
         return None
 
 
-def post_url(post: Post):
+def post_url(post: Post) -> str:
     return post["post_url"]
 
 
-def random_long_post(posts_count: int):
+def random_long_post(posts_count: int) -> Post:
     post = random_post(posts_count)
     post_length = len(post["caption"])
     app.logger.debug("Counted length for post : %s" % post_length)
