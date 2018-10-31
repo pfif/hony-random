@@ -12,7 +12,7 @@ Run
 
 - Production mode : `docker-compose up`
 - Developement mode : `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build`
-- Run tests : `mypy --ignore-missing-imports tests.py server.py && pytest tests.py`
+- Run tests : `mypy --ignore-missing-imports --check-untyped-defs tests.py server.py && pytest tests.py`
 
 Todo (maybe, one day ...)
 --
