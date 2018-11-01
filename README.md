@@ -6,6 +6,8 @@ Endpoints:
 
 - `/` : Redirects to any story
 - `/long/` : Redirects to a long story (over 500 char)
+- `/first/post/{post_id}/any/path` : Redirect to the first post in a series
+- `/next/post/{post_id}/any/path` : Redirect to the next post in a series
 
 Run
 --
