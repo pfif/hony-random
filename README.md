@@ -21,12 +21,12 @@ Todo (maybe, one day ...)
 
 - Proper web server in production (currently, Flask's developement server is used)
 - A homepage to introduce the different mode to the public
-
+- Monad style error handling
 
 Tech debt (maybe, one day ...)
 --
 
-- Break files up
+- Break files up and make properties-based tests
 - Proper logging on production
 - Dependency security fix
 - Make `nth_previous_posts` use `posts_before`
